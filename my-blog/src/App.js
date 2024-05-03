@@ -1,7 +1,9 @@
+// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import './App.css';
-
+import BlogPostList from './BlogPostList';
+import BlogPost from './BlogPost';
 
 function App() {
   return (
@@ -20,6 +22,7 @@ function App() {
         <main>
           <Routes>
             <Route exact path="/" element={<Home />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
           </Routes>
@@ -35,23 +38,7 @@ function App() {
 function Home() {
   return (
     <div>
-      <section className="post">
-        <h2 className="post-title"><Link to="/post1">My First Blog Post</Link></h2>
-        <p className="post-date">July 1, 2023</p>
-        <div className="post-content">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor, magna a bibendum bibendum, augue magna tincidunt enim, eget ultricies magna augue eget est. Maecenas vestibulum urna vitae pellentesque iaculis.</p>
-          <Link to="/post1" className="read-more">Read More</Link>
-        </div>
-      </section>
-
-      <section className="post">
-        <h2 className="post-title"><Link to="/post2">Another Blog Post</Link></h2>
-        <p className="post-date">June 28, 2023</p>
-        <div className="post-content">
-          <p>Praesent id metus massa, ut blandit odio. Proin quis tortor orci. Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet.</p>
-          <Link to="/post2" className="read-more">Read More</Link>
-        </div>
-      </section>
+      <BlogPostList />
     </div>
   );
 }
