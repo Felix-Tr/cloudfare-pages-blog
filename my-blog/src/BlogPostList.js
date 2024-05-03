@@ -33,6 +33,7 @@ const BlogPostList = () => {
               const content = atob(contentResponse.data.content);
               const [, metadata, ] = content.split('---');
               const { title, date } = parseMetadata(metadata);
+              console.log({ title, date });
 
               return {
                 title,
