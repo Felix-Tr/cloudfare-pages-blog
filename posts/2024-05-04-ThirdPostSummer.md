@@ -21,4 +21,4 @@ Die langen Sommerabende laden dazu ein, die Zeit draußen zu verbringen und die 
 
 ## Fazit
 
-Lasst uns die Sonnencreme einpacken, die Sonnenbrille aufsetzen und die Freuden des Sommers in vollen Zügen genießen. Denn eines ist sicher: Der Sommer ist die Zeit, in der wir neue Energie tanken, wunderbare Erinnerungen schaffen und das Leben von seiner schönsten Seite erleben können. In diesem Sinne: Sommer, let's go!
+Lasst uns die Sonnencreme einpacken, die Sonnenbrille aufsetzen und die Freuden des Sommers in vollen Zügen genießen. Denn eines ist sicher: Der Sommer ist die Zeit, in der wir neue Energie tanken, wunderbare Erinnerungen schaffen und das Leben von seiner schönsten Seite erleben können. In diesem Sinne: Sommer, let's go! 
