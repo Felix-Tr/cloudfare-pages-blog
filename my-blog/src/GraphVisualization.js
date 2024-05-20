@@ -67,32 +67,32 @@ const GraphVisualization = () => {
   // Update the simulation when csvData or window size changes
   useEffect(() => {
     if (csvData.length === 0) return;
-
+  
     const width = window.innerWidth;
     const height = window.innerHeight - 60; // Adjust the height based on the tab height
-
+  
     const svg = d3
       .select(svgRef.current)
       .attr('width', width)
       .attr('height', height);
-
+  
     const maxStrength = Math.max(...links.map((link) => link.strength));
     const scalingFactor = 200 / maxStrength; // Adjust this value to control the spacing
-
+  
     const newSimulation = d3
       .forceSimulation(nodeData)
       .force('link', d3.forceLink(links).id((d) => d.id).distance((d) => d.strength * scalingFactor))
       .force('charge', d3.forceManyBody().strength(-500)) // Increased repulsion force
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collision', d3.forceCollide().radius(getNodeRadius));
-
+  
     if (simulation) {
       simulation.stop();
     }
-
+  
     newSimulation.nodes(nodeData);
     newSimulation.force('link').links(links);
-
+  
     const link = svg
       .selectAll('.links')
       .data([null])
@@ -104,7 +104,7 @@ const GraphVisualization = () => {
       .attr('stroke', '#999')
       .attr('stroke-opacity', 0.6)
       .attr('stroke-width', (d) => d.strength);
-
+  
     const node = svg
       .selectAll('.nodes')
       .data([null])
@@ -115,7 +115,7 @@ const GraphVisualization = () => {
       .join('g')
       .on('mouseover', (event, d) => setHoveredNode(d))
       .on('mouseout', () => setHoveredNode(null));
-
+  
     node
       .selectAll('circle')
       .data((d) => [d])
@@ -129,7 +129,7 @@ const GraphVisualization = () => {
           .on('drag', dragged)
           .on('end', dragended)
       );
-
+  
     node
       .selectAll('text')
       .data((d) => [d])
@@ -139,43 +139,43 @@ const GraphVisualization = () => {
       .attr('y', 4)
       .style('fill', '#333')
       .style('font-size', '12px');
-
+  
     node
       .selectAll('title')
       .data((d) => [d])
       .join('title')
       .text((d) => `${d.title}\n${d.content}`); // Display both title and content in the tooltip
-
+  
     newSimulation.on('tick', () => {
       link
         .attr('x1', (d) => d.source.x)
         .attr('y1', (d) => d.source.y)
         .attr('x2', (d) => d.target.x)
         .attr('y2', (d) => d.target.y);
-
+  
       node.attr('transform', (d) => `translate(${d.x},${d.y})`);
     });
-
+  
     newSimulation.restart();
     setSimulation(newSimulation);
-
+  
     function dragstarted(event, d) {
       if (!event.active) newSimulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
     }
-
+  
     function dragged(event, d) {
       d.fx = event.x;
       d.fy = event.y;
     }
-
+  
     function dragended(event, d) {
       if (!event.active) newSimulation.alphaTarget(0);
       d.fx = null;
       d.fy = null;
     }
-  }, [csvData, getNodeRadius]);
+  }, [csvData, getNodeRadius, links, nodeData, simulation]);
 
   // Clean up the simulation on component unmount
   useEffect(() => {
