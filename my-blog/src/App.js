@@ -1,9 +1,9 @@
-// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import './App.css';
 import BlogPostList from './BlogPostList';
 import BlogPost from './BlogPost';
+import GraphVisualization from './GraphVisualization';
 
 function App() {
   return (
@@ -14,6 +14,7 @@ function App() {
           <nav>
             <ul>
               <li><Link to="/">Home</Link></li>
+              <li><Link to="/podcasts">Podcasts</Link></li>
               <li><Link to="/about">About</Link></li>
               <li><Link to="/contact">Contact</Link></li>
             </ul>
@@ -23,6 +24,7 @@ function App() {
           <Routes>
             <Route exact path="/" element={<Home />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/podcasts" element={<Podcasts />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
           </Routes>
@@ -57,6 +59,14 @@ function Contact() {
     <div>
       <h2>Contact</h2>
       <p>You can contact me at info@myblog.com.</p>
+    </div>
+  );
+}
+
+function Podcasts() {
+  return (
+    <div>
+      <GraphVisualization />
     </div>
   );
 }
