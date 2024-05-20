@@ -1,5 +1,4 @@
-// src/GraphVisualization.js
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import * as d3 from 'd3';
 
 const GraphVisualization = () => {
@@ -8,6 +7,7 @@ const GraphVisualization = () => {
   const [csvData, setCsvData] = useState([]);
   const [simulation, setSimulation] = useState(null);
 
+  // Fetch CSV data only once on component mount
   useEffect(() => {
     const fetchCsvData = async () => {
       try {
@@ -25,17 +25,8 @@ const GraphVisualization = () => {
     fetchCsvData();
   }, []);
 
-  useEffect(() => {
-    if (csvData.length === 0) return;
-
-    const width = window.innerWidth;
-    const height = window.innerHeight - 60; // Adjust the height based on the tab height
-
-    const svg = d3
-      .select(svgRef.current)
-      .attr('width', width)
-      .attr('height', height);
-
+  // Memoize the nodeData and links calculation
+  const { nodeData, links } = useMemo(() => {
     const nodeData = csvData.map((d) => ({
       id: d.id,
       title: d.title,
@@ -59,6 +50,32 @@ const GraphVisualization = () => {
       return connections;
     });
 
+    return { nodeData, links };
+  }, [csvData]);
+
+  // Memoize the getNodeRadius function
+  const getNodeRadius = useCallback(
+    (author) => {
+      if (!author) {
+        return 10; // Return a default radius if author is undefined or null
+      }
+      return 10 + author.length * 2;
+    },
+    []
+  );
+
+  // Update the simulation when csvData or window size changes
+  useEffect(() => {
+    if (csvData.length === 0) return;
+
+    const width = window.innerWidth;
+    const height = window.innerHeight - 60; // Adjust the height based on the tab height
+
+    const svg = d3
+      .select(svgRef.current)
+      .attr('width', width)
+      .attr('height', height);
+
     const maxStrength = Math.max(...links.map((link) => link.strength));
     const scalingFactor = 200 / maxStrength; // Adjust this value to control the spacing
 
@@ -67,7 +84,7 @@ const GraphVisualization = () => {
       .force('link', d3.forceLink(links).id((d) => d.id).distance((d) => d.strength * scalingFactor))
       .force('charge', d3.forceManyBody().strength(-500)) // Increased repulsion force
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius((d) => getNodeRadius(d.author)));
+      .force('collision', d3.forceCollide().radius(getNodeRadius));
 
     if (simulation) {
       simulation.stop();
@@ -158,15 +175,9 @@ const GraphVisualization = () => {
       d.fx = null;
       d.fy = null;
     }
+  }, [csvData, getNodeRadius]);
 
-    function getNodeRadius(author) {
-      if (!author) {
-        return 10; // Return a default radius if author is undefined or null
-      }
-      return 10 + author.length * 2;
-    }
-  }, [csvData]);
-
+  // Clean up the simulation on component unmount
   useEffect(() => {
     return () => {
       if (simulation) {
