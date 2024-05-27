@@ -1,69 +1,125 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
+  color: #070604;
   margin: 0;
   padding: 0;
+  background-color: #070604;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 header {
-  background-color: #333;
-  color: #fff;
-  padding: 20px;
+  background-color: #000000;
+  color: #c4a780;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
 }
 
-h1 {
-  margin: 0;
+header .logo-container {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 10px;
+  animation: moveAndRotate 20s linear infinite;
+}
+
+header .logo-container img {
+  width: 100%;
+  height: auto;
+  transition: transform 0.5s;
+}
+
+@keyframes moveAndRotate {
+  0% {
+    left: 0;
+    transform: rotate(90deg);
+  }
+  45% {
+    left: calc(100vw - 50px);
+    transform: rotate(90deg);
+  }
+  50% {
+    left: calc(100vw - 50px);
+    transform: rotate(270deg);
+  }
+  95% {
+    left: 0;
+    transform: rotate(270deg);
+  }
+  100% {
+    left: 0;
+    transform: rotate(90deg);
+  }
+}
+
+nav {
+  margin-top: 3rem;
 }
 
 nav ul {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
 }
 
-nav ul li {
-  display: inline;
-  margin-right: 10px;
+nav li {
+  margin-right: 1rem;
 }
 
-nav ul li a {
-  color: #fff;
+nav a {
+  color: #c4a780;
   text-decoration: none;
 }
 
 main {
-  padding: 20px;
+  padding: 2rem 0;
+}
+
+.blog-posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
 }
 
 .post {
-  margin-bottom: 30px;
+  background-color: white;
+  padding: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.post-title {
-  margin-bottom: 5px;
-}
-
-.post-title a {
-  color: #333;
+.post h2 a {
+  color: #c4a780;
   text-decoration: none;
 }
 
-.post-date {
-  color: #888;
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-.read-more {
-  display: inline-block;
-  background-color: #333;
-  color: #fff;
-  padding: 5px 10px;
-  text-decoration: none;
-  margin-top: 10px;
+.post h2 a:hover {
+  text-decoration: underline;
 }
 
 footer {
-  background-color: #f5f5f5;
-  padding: 10px;
+  background-color: #070604;
+  color: #c4a780;
+  padding: 1rem 0;
   text-align: center;
-  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  nav ul {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  nav li {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
 }
