@@ -9,13 +9,14 @@ import os
 import requests
 import html2text
 
-
 from datetime import date
 from bs4 import BeautifulSoup
 from langchain_anthropic import ChatAnthropic
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
-from langchain.chains import LLMChain
+from langchain_openai import OpenAI
+from langchain_core.prompts import PromptTemplate
 from youtube_transcript_api import YouTubeTranscriptApi
+
+from prompts import generate_blogpost_template
 
 NOTION_TOKEN = os.getenv('NOTION_TOKEN')
 DATABASE_ID = os.getenv('NOTION_DATABASE_ID')
@@ -26,6 +27,34 @@ headers = {
     'Content-Type': 'application/json',
     'Notion-Version': '2022-06-28',
 }
+
+
+# Create a logger instance
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Create a console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(console_formatter)
+
+# Create a file handler
+file_handler = logging.FileHandler('app.log', mode='w')
+file_handler.setLevel(logging.DEBUG)
+file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(file_formatter)
+
+# Add the handlers to the logger
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
+
+# Log messages during development
+logger.debug('This is a debug message')
+logger.info('This is an info message')
+logger.warning('This is a warning message')
+logger.error('This is an error message')
+logger.critical('This is a critical message')
 
 
 def get_pages(filter=None):
@@ -93,46 +122,21 @@ def scrape_text_from_url(url):
 
 
 def generate_blogpost(content, comment, author, title, source, url):
-    llm = ChatAnthropic(temperature=0, model_name="claude-3-opus-20240229")
+    llm = OpenAI(temperature=0, model_name="gpt-4o")
+    # llm = ChatAnthropic(temperature=0, model_name="claude-3-opus-20240229")
     today = date.today().strftime("%Y-%m-%d")
-    template = f"""
-    Your task is to generate a blogpost in markdown format based on the given content and comment. The blogpost should be a 5-minute max read, and should be written for an audience that can keep up with the content discussed in newsletters. You are not allowed to make any assumptions while extracting the information from the given content. Every link you provide should be from the information given. 
 
-    First, brainstorm a title for the blogpost that captures the main topics covered in the link content and comment together, using a different one from the original content.
-    
-    Next, write an introduction that provides some context for the blogpost and sets up the key points that will be discussed, 
-    referencing the source, being by "{author}" from "{source}" with the following title [{title}]({url}), including the link.
-    
-    Then, list out the main topics that will be covered in the blogpost, with each topic on a new line preceded by a "-".
-    
-    Now, write the main content of the blogpost. Leverage the information provided in the link content, and expand on any relevant points raised in the comment. Keep in mind the target audience's level of understanding as you explain the concepts.
-    
-    Finally, write a conclusion for the blogpost. Summarize the key points and provide any final thoughts or takeaways for the reader.
-    Incorporate every aspect of the given comment in the conclusion as it conveys my personal opinion on the article that I want to emphasize!
-    
-    Format the full blogpost as follows, only provide the answer with a direct string that can be used to write out the markdown file:
-    
-    ---
-    title: <title>
-    date: "{today}"
-    ---
-    
-    ...rest of the blogpost...
-    
-    
-    
-    Remember, the blogpost should be a 5-minute max read, so be concise yet informative in your writing.
-    
-    And here is my comment and thoughts on the content:
-    {{comment}}
-    
-    Here is the content itself:
-    {{link_content}}
-    """
+    formatted_template = generate_blogpost_template.format(
+        today=today,
+        author=author,
+        source=source,
+        title=title,
+        url=url
+    )
 
     prompt = PromptTemplate(
         input_variables=[content, comment],
-        template=template,
+        template=formatted_template,
     )
 
     chain = prompt | llm
@@ -140,50 +144,44 @@ def generate_blogpost(content, comment, author, title, source, url):
     return chain.invoke({"link_content": content, "comment": comment}).content
 
 
-# data = {
-#     "filter": {
-#         "or": [
-#             {
-#                 "property": "Source",
-#                 "contains": "Turing Post"
-#             }
-#         ]
-#     }
-# }
-data = None
+if __name__ == '__main__':
 
-results_pages = get_pages(filter=data)
+    data = None
 
-link_content = None
-for page in results_pages:
-    logging.log(level=20, msg="Fetching content...")
-    files = page['properties'].get('Dateien und Medien')
-    if len(files['files']) > 0:
-        filename = files['files'][0].get("name")
-        if ".html" in filename:
-            link_content = extract_text_from_html(files['files'][0]['file']['url'])
-        elif ".pdf" in filename:
-            raise NotImplementedError("pdf parser not implemented yet, please be patient")
-        elif ".png" in filename or ".jpg" in filename:
-            logging.log(level=20, msg="images present but not used")
-    else:
-        url = page['properties'].get('URL')['url']
-        if "youtube" in url:
-            extract_transcript_from_youtube(url)
+    results_pages = get_pages(filter=data)
+
+    link_content = None
+    for page in results_pages:
+        logger.info("Fetching content...")
+        logger.debug(f"Fetched page: {page}")
+        files = page['properties'].get('Dateien und Medien')
+        if page['properties'].get('Content Summary'):
+            link_content = page['properties'].get('Content Summary')['rich_text'][0]['text']['content']
+        elif len(files['files']) > 0:
+            filename = files['files'][0].get("name")
+            if ".html" in filename:
+                link_content = extract_text_from_html(files['files'][0]['file']['url'])
+            elif ".pdf" in filename:
+                raise NotImplementedError("pdf parser not implemented yet, please be patient")
+            elif ".png" in filename or ".jpg" in filename:
+                logging.log(level=20, msg="images present but not used")
         else:
-            raise NotImplementedError("Generic Parser not implemented yet!")
+            url = page['properties'].get('URL')['url']
+            if "youtube" in url:
+                extract_transcript_from_youtube(url)
+            else:
+                raise NotImplementedError("Generic Parser not implemented yet!")
 
-    try:
-        text_comment = page['properties']['Text']['rich_text'][0]['plain_text']
-        title = page['properties']['Name']['title'][0]['text']['content']
-        source = page['properties']['Source']['multi_select'][0]['name']
-        author = page['properties']['Autor']["rich_text"][0]['text']['content']
-        url = page['properties']['URL']["url"]
-    except Exception as ex:
-        raise Exception(f"One of the following fields isn't present: text_comment={text_comment}, title={title}, source={source}, author={author}")
+        try:
+            text_comment = page['properties']['Text']['rich_text'][0]['plain_text']
+            title = page['properties']['Name']['title'][0]['text']['content']
+            source = page['properties']['Source']['multi_select'][0]['name']
+            author = page['properties']['Autor']["rich_text"][0]['text']['content']
+            url = page['properties']['URL']["url"]
+        except Exception as ex:
+            raise Exception(f"One of the following fields isn't present: text_comment={text_comment}, title={title}, source={source}, author={author}")
 
-    if text_comment:
-        if link_content:
-            blogpost = generate_blogpost(link_content, text_comment, author, title, source, url)
-            print(blogpost)
-
+        if text_comment:
+            if link_content:
+                blogpost = generate_blogpost(link_content, text_comment, author, title, source, url)
+                print(blogpost)
