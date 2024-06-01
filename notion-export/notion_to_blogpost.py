@@ -74,6 +74,16 @@ def get_pages(filter=None):
     return results
 
 
+def update_notion_page(page):
+    url = f"https://api.notion.com/v1/pages/{page['id']}"
+    response = requests.patch(url, headers=headers, json=page)
+
+    if response.status_code == 200:
+        logger.info("Page updated successfully!")
+    else:
+        logger.error(f"Error updating page: {response.text}")
+
+
 def extract_transcript_from_youtube(video_url):
     # Extract the video ID from the URL
     video_id = video_url.split("v=")[1]
@@ -122,8 +132,8 @@ def scrape_text_from_url(url):
 
 
 def generate_blogpost(content, comment, author, title, source, url):
-    llm = OpenAI(temperature=0, model_name="gpt-4o")
-    # llm = ChatAnthropic(temperature=0, model_name="claude-3-opus-20240229")
+    # llm = OpenAI(temperature=0, model_name="gpt-4o")
+    llm = ChatAnthropic(temperature=0, model_name="claude-3-opus-20240229")
     today = date.today().strftime("%Y-%m-%d")
 
     formatted_template = generate_blogpost_template.format(
@@ -144,6 +154,49 @@ def generate_blogpost(content, comment, author, title, source, url):
     return chain.invoke({"link_content": content, "comment": comment}).content
 
 
+def convert_markdown_to_blocks(markdown_content):
+    # Split the Markdown content into lines
+    lines = markdown_content.split("\n")
+
+    blocks = []
+    for line in lines:
+        # Check if the line starts with a heading (#)
+        if line.startswith("#"):
+            # Count the number of # to determine the heading level
+            heading_level = line.count("#")
+            # Remove the # and trim the heading text
+            heading_text = line[heading_level:].strip()
+
+            blocks.append({
+                "object": "block",
+                "type": f"heading_{heading_level}",
+                f"heading_{heading_level}": {
+                    "rich_text": [{
+                        "type": "text",
+                        "text": {
+                            "content": heading_text
+                        }
+                    }]
+                }
+            })
+        else:
+            # Add the line as a paragraph block
+            blocks.append({
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{
+                        "type": "text",
+                        "text": {
+                            "content": line
+                        }
+                    }]
+                }
+            })
+
+    return blocks
+
+
 if __name__ == '__main__':
 
     data = None
@@ -155,6 +208,8 @@ if __name__ == '__main__':
         logger.info("Fetching content...")
         logger.debug(f"Fetched page: {page}")
         files = page['properties'].get('Dateien und Medien')
+        if page['properties']['Name']['title'][0]['text']['content'] != 'Spannende Folge zu outcomes der Thüringer Kommunalwahl':
+            continue
         if page['properties'].get('Content Summary'):
             link_content = page['properties'].get('Content Summary')['rich_text'][0]['text']['content']
         elif len(files['files']) > 0:
@@ -185,3 +240,13 @@ if __name__ == '__main__':
             if link_content:
                 blogpost = generate_blogpost(link_content, text_comment, author, title, source, url)
                 print(blogpost)
+
+                # # Update page
+                # blocks = convert_markdown_to_blocks(blogpost)
+                # if page.get('children'):
+                #     page['children'].extend(blocks)
+                # else:
+                #     page['children'] = blocks
+                #
+                # update_notion_page(page)
+
