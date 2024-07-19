@@ -189,7 +189,7 @@ const GraphVisualization = () => {
   return (
     <div>
       <p>
-        This tab shows my past podcasts and articles from the last 48 months. Older entries will be added soon, but for now, this is the available history.
+        This Graph is still under construction, working on it :)
       </p>
       <svg ref={svgRef}></svg>
       {hoveredNode && (

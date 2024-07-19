@@ -1,6 +1,7 @@
 body {
   font-family: 'Roboto', sans-serif;
-  color: #070604;
+  color: #c4a780;
+  text-align: center;
   margin: 0;
   padding: 0;
   background-color: #070604;
@@ -13,7 +14,7 @@ body {
 }
 
 header {
-  background-color: #000000;
+  background-color: #070604;
   color: #c4a780;
   padding: 1rem 0;
   display: flex;
@@ -122,4 +123,40 @@ footer {
     margin-right: 0;
     margin-bottom: 0.5rem;
   }
+}
+
+.linkedin-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.linkedin-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.social-icons-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.social-icon {
+  width: 2rem; /* Adjust the size as needed */
+  height: 2rem; /* Adjust the size as needed */
+  margin: 0 8px;
+}
+
+.contact-info {
+  margin-top: 20px;
+}
+.contact-info a {
+  color: inherit; /* This makes the link color the same as the text color */
+  text-decoration: none;
+}
+.contact-info a:hover {
+  text-decoration: underline; /* Optional: Add underline on hover */
 }
