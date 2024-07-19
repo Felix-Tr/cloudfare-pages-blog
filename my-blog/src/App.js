@@ -101,7 +101,7 @@ function About() {
         <p>I have some updates planned for this website, including:</p>
         <ul>
             <li><strong>Add reads to the graph </strong>: Filling the graph with the currated and consumed tech podcasts, newsletter reads, documents, papers, and so on</li>
-            <li><strong>GraphRAG chat functionality</strong>: Adding chat functionalities over all the content in the graph using <a href="https://microsoft.github.io/graphrag/" target="_blank">Microsoft's GraphRAG</a>, which currently seems most promising to me even if it has some customization effort.</li>
+            <li><strong>GraphRAG chat functionality</strong>: Adding chat functionalities over all the content in the graph using <a href="https://microsoft.github.io/graphrag/" target="_blank" rel="noopener noreferrer">Microsoft's GraphRAG</a>, which currently seems most promising to me even if it has some customization effort.</li>
         </ul>
         
         <h2>Contact Information</h2>
