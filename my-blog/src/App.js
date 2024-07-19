@@ -92,7 +92,7 @@ function About() {
        <h1>About This Website</h1>
         
         <p>Welcome to my personal project website! This platform is an evolving space where I share my work, experiments, and ideas related to web development, AI, and various other interests. As I continually enhance my skills and explore new technologies, this site will reflect those changes and growth.</p>
-        <p>Please note that this website is perpetually under construction. I work on it whenever I have time, so you might notice frequent updates and changes. Currently, it’s a simple React application hosted with Cloudflare Pages.</p>
+        <p>Please note that this website is perpetually under construction, I work on it whenever I have time. Currently, it’s a simple React application hosted with Cloudflare Pages.</p>
         
         <h2>Future Plans</h2>
         <p>I have some updates planned for this website, including:</p>
