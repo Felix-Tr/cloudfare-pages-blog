@@ -160,3 +160,8 @@ footer {
 .contact-info a:hover {
   text-decoration: underline; /* Optional: Add underline on hover */
 }
+
+a {
+  color: inherit; /* Inherit color from the surrounding text */
+  text-decoration: underline; /* Add underline to links */
+}
